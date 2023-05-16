@@ -12,7 +12,7 @@ internal class Program
         while (qrCodeJson == null)
         {
             Console.WriteLine("Enter your Loopring Migration QR Code Text in JSON Format: ");
-            loopringMigrationCodeQrText = "{\"wallet\":\"0x99fdddfdc9277404db0379009274cc98d3688f8b\",\"iv\":\"vkr49BVkFtJcLNZKQNdWlQ==\",\"mnemonic\":\"BRkCgCumX9ETCbM0iP4IxgOofP4jMA5dHdaWWefzzRFzke63715mwTO0BsCJ2soLxFaskpoGf3MwkyIneibnglsPiClav2js5JnBZUYqJkc=\",\"ens\":\"fudgey.loopring.eth\",\"isCounterFactual\":false,\"register\":\"61,0431408784\",\"type\":\"LoopringWalletSmart\",\"setting\":718,\"salt\":\"L19Yw4dSo6qvI7j6pRhDbA==\",\"network\":\"ETHEREUM\"}";
+            loopringMigrationCodeQrText = ";
             try
             {
                 qrCodeJson = JsonConvert.DeserializeObject<QrCodeJson>(loopringMigrationCodeQrText);
