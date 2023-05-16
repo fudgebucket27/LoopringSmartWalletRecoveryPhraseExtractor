@@ -12,11 +12,10 @@ internal class Program
         while (qrCodeJson == null)
         {
             Console.WriteLine("Enter your Loopring Migration QR Code Text in JSON Format: ");
-            loopringMigrationCodeQrText = "";
+            loopringMigrationCodeQrText = Console.ReadLine().Trim(); ;
             try
             {
                 qrCodeJson = JsonConvert.DeserializeObject<QrCodeJson>(loopringMigrationCodeQrText);
-
             }
             catch (JsonException)
             {
