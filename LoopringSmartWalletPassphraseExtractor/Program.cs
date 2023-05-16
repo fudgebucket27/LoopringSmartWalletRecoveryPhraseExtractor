@@ -7,15 +7,15 @@ internal class Program
 {
     private static void Main(string[] args)
     {
-        string migrationCodeQrText = ""; //the text of your Loopring migration qr code in JSON Format, eg: {"wallet":"0x99","iv":"2IcZe","mnemonic":"uvkZ","ens":"fudgey.loopring.eth","isCounterFactual":false,"register":"61,","type":"LoopringWalletSmart","setting":3232,"salt":"ikq","network":"ETHEREUM"}
-        string passcode = ""; //change this to suit your Loopring passcode
+        string loopringMigrationCodeQrText = ""; //the text of your Loopring migration qr code in JSON Format, eg: {"wallet":"0x99","iv":"2IcZe","mnemonic":"uvkZ","ens":"fudgey.loopring.eth","isCounterFactual":false,"register":"61,","type":"LoopringWalletSmart","setting":3232,"salt":"ikq","network":"ETHEREUM"}
+        string loopringAppPassCode = ""; //change this to suit your Loopring passcode
 
-        var qrTextObject = JsonConvert.DeserializeObject<QrCodeJson>(migrationCodeQrText);
+        var qrTextObject = JsonConvert.DeserializeObject<QrCodeJson>(loopringMigrationCodeQrText);
         byte[] mnemonic = Encoding.ASCII.GetBytes(qrTextObject.mnemonic);
         byte[] iv = Encoding.ASCII.GetBytes(qrTextObject.iv);
         byte[] salt = Encoding.ASCII.GetBytes(qrTextObject.salt);
 
-        QRCodeDecrypt(ref mnemonic, ref iv, ref salt, passcode);
+        QRCodeDecrypt(ref mnemonic, ref iv, ref salt, loopringAppPassCode);
 
         Console.WriteLine("Press any key to exit:");
         Console.ReadKey();
