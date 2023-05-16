@@ -18,4 +18,4 @@ Extract the Recovery Phrase for a Loopring Smart Wallet via the Migration QR Cod
 5. Your recovery passphrase should then be displayed
 
 # TO DO
-Figure out how to get the derived account address / private key that Loopring uses as we are currently getting the first account index.
+Figure out how to get the derived account address / private key that Loopring uses, as we are currently getting the first account index.
