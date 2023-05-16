@@ -1,4 +1,5 @@
 ﻿using LoopringSmartWalletRecoveryPhraseExtractor;
+using Nethereum.HdWallet;
 using Newtonsoft.Json;
 using System.Security.Cryptography;
 using System.Text;
@@ -66,6 +67,13 @@ internal class Program
                         Array.Copy(decryptedBytes, result, result.Length);
                         string decryptedMnemonic = Encoding.UTF8.GetString(result);
                         Console.WriteLine("Your recovery phrase is: " + decryptedMnemonic);
+                        var wallet1 = new Wallet(decryptedMnemonic, "0x99fdddfdc9277404db0379009274cc98d3688f8b");
+
+                        for (int i = 0; i < 10; i++)
+                        {
+                            var account = wallet1.GetAccount(i);
+                            Console.WriteLine("Account index : " + i + " - Address : " + account.Address + " - Private key : " + account.PrivateKey);
+                        }
                     }
                     catch(Exception)
                     {
