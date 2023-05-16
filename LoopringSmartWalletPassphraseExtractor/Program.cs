@@ -7,20 +7,41 @@ internal class Program
 {
     private static void Main(string[] args)
     {
+        QrCodeJson qrCodeJson = null;
         string loopringMigrationCodeQrText = ""; //the text of your Loopring migration qr code in JSON Format, eg: {"wallet":"0x99","iv":"2IcZe","mnemonic":"uvkZ","ens":"fudgey.loopring.eth","isCounterFactual":false,"register":"61,","type":"LoopringWalletSmart","setting":3232,"salt":"ikq","network":"ETHEREUM"}
+        while (qrCodeJson == null)
+        {
+            Console.WriteLine("Enter your Loopring Migration QR Code Text in JSON Format: ");
+            loopringMigrationCodeQrText = "{\"wallet\":\"0x99fdddfdc9277404db0379009274cc98d3688f8b\",\"iv\":\"vkr49BVkFtJcLNZKQNdWlQ==\",\"mnemonic\":\"BRkCgCumX9ETCbM0iP4IxgOofP4jMA5dHdaWWefzzRFzke63715mwTO0BsCJ2soLxFaskpoGf3MwkyIneibnglsPiClav2js5JnBZUYqJkc=\",\"ens\":\"fudgey.loopring.eth\",\"isCounterFactual\":false,\"register\":\"61,0431408784\",\"type\":\"LoopringWalletSmart\",\"setting\":718,\"salt\":\"L19Yw4dSo6qvI7j6pRhDbA==\",\"network\":\"ETHEREUM\"}";
+            try
+            {
+                qrCodeJson = JsonConvert.DeserializeObject<QrCodeJson>(loopringMigrationCodeQrText);
+
+            }
+            catch (JsonException)
+            {
+                Console.WriteLine("You have entered invalid Loopring Migration QR Code Text in JSON Format! Try Again...");
+            }
+        }
+
         string loopringAppPassCode = ""; //change this to suit your Loopring passcode
+        while (string.IsNullOrEmpty(loopringAppPassCode))
+        {
+            Console.WriteLine("Enter your Loopring Wallet App Passcode: ");
+            loopringAppPassCode = Console.ReadLine().Trim();
+        }
 
-        var qrTextObject = JsonConvert.DeserializeObject<QrCodeJson>(loopringMigrationCodeQrText);
-        byte[] mnemonic = Encoding.ASCII.GetBytes(qrTextObject.mnemonic);
-        byte[] iv = Encoding.ASCII.GetBytes(qrTextObject.iv);
-        byte[] salt = Encoding.ASCII.GetBytes(qrTextObject.salt);
 
-        QRCodeDecrypt(ref mnemonic, ref iv, ref salt, loopringAppPassCode);
+        byte[] mnemonic = Encoding.ASCII.GetBytes(qrCodeJson.mnemonic);
+        byte[] iv = Encoding.ASCII.GetBytes(qrCodeJson.iv);
+        byte[] salt = Encoding.ASCII.GetBytes(qrCodeJson.salt);
+
+        QRCodeDecrypt(mnemonic, iv, salt, loopringAppPassCode);
 
         Console.WriteLine("Press any key to exit:");
         Console.ReadKey();
 
-        static void QRCodeDecrypt(ref byte[] mnemonic, ref byte[] iv, ref byte[] salt, string passphrase)
+        static void QRCodeDecrypt(byte[] mnemonic, byte[] iv, byte[] salt, string passphrase)
         {
             mnemonic = Convert.FromBase64String(Encoding.UTF8.GetString(mnemonic));
             iv = Convert.FromBase64String(Encoding.UTF8.GetString(iv));
@@ -40,10 +61,17 @@ internal class Program
                 {
                     byte[] decryptedBytes = decryptor.TransformFinalBlock(mnemonic, 0, mnemonic.Length);
                     int paddingLength = decryptedBytes[decryptedBytes.Length - 1];
-                    byte[] result = new byte[decryptedBytes.Length - paddingLength];
-                    Array.Copy(decryptedBytes, result, result.Length);
-                    string decryptedMnemonic = Encoding.UTF8.GetString(result);
-                    Console.WriteLine("Your recovery phrase is: " + decryptedMnemonic);
+                    try
+                    {
+                        byte[] result = new byte[decryptedBytes.Length - paddingLength];
+                        Array.Copy(decryptedBytes, result, result.Length);
+                        string decryptedMnemonic = Encoding.UTF8.GetString(result);
+                        Console.WriteLine("Your recovery phrase is: " + decryptedMnemonic);
+                    }
+                    catch(Exception)
+                    {
+                        Console.WriteLine("You have entered the wrong passcode... try again!");
+                    }
                 }
             }
         }
