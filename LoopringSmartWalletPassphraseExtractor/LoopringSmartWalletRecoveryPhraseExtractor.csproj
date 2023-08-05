@@ -8,7 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BarcodeReader.ImageSharp" Version="2.0.1" />
     <PackageReference Include="Nethereum.HdWallet" Version="4.15.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="OpenCvSharp4" Version="4.8.0.20230708" />
