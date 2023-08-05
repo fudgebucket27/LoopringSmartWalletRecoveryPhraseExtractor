@@ -1,6 +1,7 @@
 ﻿using LoopringSmartWalletRecoveryPhraseExtractor;
 using Nethereum.HdWallet;
 using Newtonsoft.Json;
+using OpenCvSharp;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -9,22 +10,45 @@ internal class Program
     private static void Main(string[] args)
     {
         QrCodeJson qrCodeJson = null;
-        string loopringMigrationCodeQrText = ""; //the text of your Loopring migration qr code in JSON Format, eg: {"wallet":"0x99","iv":"2IcZe","mnemonic":"uvkZ","ens":"fudgey.loopring.eth","isCounterFactual":false,"register":"61,","type":"LoopringWalletSmart","setting":3232,"salt":"ikq","network":"ETHEREUM"}
-        while (qrCodeJson == null)
+
+        // Path to the image
+        string imagePath = "";
+        while (string.IsNullOrEmpty(imagePath))
         {
-            Console.WriteLine("Enter your Loopring Migration QR Code Text in JSON Format: ");
-            loopringMigrationCodeQrText = Console.ReadLine().Trim(); ;
-            try
-            {
-                qrCodeJson = JsonConvert.DeserializeObject<QrCodeJson>(loopringMigrationCodeQrText);
-            }
-            catch (JsonException)
-            {
-                Console.WriteLine("You have entered invalid Loopring Migration QR Code Text in JSON Format! Try Again...");
-            }
+            Console.WriteLine("Enter the file path to the QR code image: ");
+            imagePath = Console.ReadLine().Trim(); ;
         }
 
-        string loopringAppPassCode = ""; //change this to suit your Loopring passcode
+        // Read the image from the file
+        using Mat image = Cv2.ImRead(imagePath);
+
+        // Initialize the QR code detector
+        QRCodeDetector qrCodeDetector = new QRCodeDetector();
+
+        // Detect the QR code
+        string decodedInfo = qrCodeDetector.DetectAndDecode(image, out Point2f[] points);
+
+        // Check if the QR code has been detected
+        if (points != null && points.Length > 0)
+        {
+            // Draw a polygon around the detected QR code
+            Cv2.Polylines(image, new Point[][] { points.Select(p => p.ToPoint()).ToArray() }, isClosed: true, color: Scalar.Red);
+
+            // Display the detected and decoded information
+            Console.WriteLine("QR Code Detected: " + decodedInfo);
+            if (decodedInfo.Trim().Length > 0)
+            {
+                qrCodeJson = JsonConvert.DeserializeObject<QrCodeJson>(decodedInfo);
+            }
+        }
+        else
+        {
+            Console.WriteLine("QR Code Not Detected. Try a different image...");
+            return;
+        }
+
+
+        string loopringAppPassCode = "";
         while (string.IsNullOrEmpty(loopringAppPassCode))
         {
             Console.WriteLine("Enter your Loopring Wallet App Passcode: ");
@@ -40,6 +64,7 @@ internal class Program
 
         Console.WriteLine("Press any key to exit:");
         Console.ReadKey();
+    }
 
         static void QRCodeDecrypt(byte[] mnemonic, byte[] iv, byte[] salt, string passphrase)
         {
@@ -66,10 +91,10 @@ internal class Program
                         byte[] result = new byte[decryptedBytes.Length - paddingLength];
                         Array.Copy(decryptedBytes, result, result.Length);
                         string decryptedMnemonic = Encoding.UTF8.GetString(result);
-                        Console.WriteLine("Your recovery phrase for your owner wallet is: " + decryptedMnemonic);
+                        Console.WriteLine("Your recovery phrase for your owner wallet is: " + Environment.NewLine + decryptedMnemonic);
                         Wallet wallet = new Wallet(decryptedMnemonic, null);
                         string walletPrivateKey = BitConverter.ToString(wallet.GetPrivateKey(0)).Replace("-", string.Empty).ToLower();
-                        Console.WriteLine("Your L1 private key for your owner wallet is: " + walletPrivateKey);
+                        Console.WriteLine("Your L1 private key for your owner wallet is: "  + Environment.NewLine +  walletPrivateKey);
 
                     }
                     catch(Exception)
@@ -80,4 +105,3 @@ internal class Program
             }
         }
     }
-}
